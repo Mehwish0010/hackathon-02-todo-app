@@ -1,0 +1,272 @@
+/* Glassmorphism Utility Classes
+   Feature: 004-frontend-ui-redesign
+   Reusable glass effect classes for consistent UI styling */
+
+/* ========== Base Glass Effects ========== */
+
+.glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+}
+
+.glass-sm {
+  background: var(--bg-glass);
+  backdrop-filter: blur(var(--blur-sm));
+  -webkit-backdrop-filter: blur(var(--blur-sm));
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+}
+
+.glass-lg {
+  background: var(--bg-glass);
+  backdrop-filter: blur(var(--blur-lg));
+  -webkit-backdrop-filter: blur(var(--blur-lg));
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-2xl);
+}
+
+/* ========== Glass with Shadow ========== */
+
+.glass-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-card-elevated {
+  background: var(--bg-glass);
+  backdrop-filter: blur(var(--blur-lg));
+  -webkit-backdrop-filter: blur(var(--blur-lg));
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow-lg);
+}
+
+/* ========== Interactive Glass States ========== */
+
+.glass-interactive {
+  background: var(--bg-glass);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  transition:
+    background var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out),
+    transform var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.glass-interactive:hover {
+  background: var(--bg-glass-hover);
+  border-color: var(--border-glass-hover);
+}
+
+.glass-interactive:active {
+  background: var(--bg-glass-active);
+}
+
+/* ========== Glass Button Variants ========== */
+
+.glass-button {
+  background: var(--bg-glass);
+  backdrop-filter: blur(var(--blur-sm));
+  -webkit-backdrop-filter: blur(var(--blur-sm));
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.glass-button:hover {
+  background: var(--bg-glass-hover);
+  border-color: var(--border-glass-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.glass-button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.glass-button-accent {
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  box-shadow: 0 0 20px var(--accent-glow-subtle);
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.glass-button-accent:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+
+/* ========== Glass Input ========== */
+
+.glass-input {
+  background: var(--bg-glass);
+  backdrop-filter: blur(var(--blur-sm));
+  -webkit-backdrop-filter: blur(var(--blur-sm));
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  transition:
+    border-color var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.glass-input::placeholder {
+  color: var(--text-muted);
+}
+
+.glass-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow-subtle);
+}
+
+.glass-input:hover:not(:focus) {
+  border-color: var(--border-glass-hover);
+}
+
+/* ========== Glass Modal ========== */
+
+.glass-modal-backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.glass-modal {
+  background: var(--bg-secondary);
+  backdrop-filter: blur(var(--blur-lg));
+  -webkit-backdrop-filter: blur(var(--blur-lg));
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--glass-shadow-lg);
+}
+
+/* ========== Glass Navigation ========== */
+
+.glass-nav {
+  background: rgba(10, 10, 15, 0.8);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  border-bottom: 1px solid var(--border-glass);
+}
+
+/* ========== Responsive Glass Adjustments ========== */
+
+/* Mobile: Slightly higher opacity for readability */
+@media (max-width: 480px) {
+  .glass,
+  .glass-card,
+  .glass-interactive {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(var(--blur-sm));
+    -webkit-backdrop-filter: blur(var(--blur-sm));
+  }
+}
+
+/* Tablet */
+@media (min-width: 481px) and (max-width: 1024px) {
+  .glass,
+  .glass-card,
+  .glass-interactive {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+/* ========== Fallback for Unsupported Browsers ========== */
+
+@supports not (backdrop-filter: blur(12px)) {
+  .glass,
+  .glass-sm,
+  .glass-lg,
+  .glass-card,
+  .glass-card-elevated,
+  .glass-interactive,
+  .glass-button,
+  .glass-input,
+  .glass-modal,
+  .glass-nav {
+    background: rgba(18, 18, 26, 0.95);
+  }
+}
+
+/* ========== Reduced Motion Support ========== */
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-interactive,
+  .glass-button,
+  .glass-button-accent,
+  .glass-input {
+    transition: none;
+  }
+
+  .glass-button:hover,
+  .glass-button-accent:hover {
+    transform: none;
+  }
+}
+
+/* ========== Glow Effects ========== */
+
+.glow-accent {
+  box-shadow: 0 0 20px var(--accent-glow-subtle);
+}
+
+.glow-accent-hover:hover {
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+
+.glow-success {
+  box-shadow: 0 0 20px var(--success-glow);
+}
+
+.glow-error {
+  box-shadow: 0 0 20px var(--error-glow);
+}
+
+/* ========== Text Glow ========== */
+
+.text-glow {
+  text-shadow: 0 0 20px var(--accent-glow);
+}
+
+/* ========== Gradient Backgrounds for Orbs ========== */
+
+.gradient-orb-1 {
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  opacity: 0.3;
+  filter: blur(60px);
+}
+
+.gradient-orb-2 {
+  background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+  opacity: 0.2;
+  filter: blur(80px);
+}
+
+.gradient-orb-3 {
+  background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+  opacity: 0.15;
+  filter: blur(100px);
+}

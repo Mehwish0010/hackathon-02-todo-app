@@ -2,17 +2,18 @@
 ================================================================================
 SYNC IMPACT REPORT
 ================================================================================
-Version Change: 0.0.0 → 1.0.0 (MAJOR - Initial ratification)
+Version Change: 1.0.0 → 1.1.0 (MINOR - Phase III agentic architecture additions)
 
-Modified Principles: N/A (Initial creation)
+Modified Principles:
+  - IV. Fixed Technology Stack: Updated to include OpenAI ChatKit, Agents SDK, MCP SDK
 
 Added Sections:
-  - Core Principles (6 principles)
-  - Technology Stack (fixed, non-negotiable)
-  - Development Workflow
-  - Governance
+  - VII. Agentic Architecture (NON-NEGOTIABLE)
+  - VIII. MCP Tool Standards (NON-NEGOTIABLE)
+  - IX. Stateless Chat Architecture (NON-NEGOTIABLE)
+  - Phase III Judging Focus
 
-Removed Sections: N/A (Initial creation)
+Removed Sections: None
 
 Templates Requiring Updates:
   - .specify/templates/plan-template.md: ✅ Compatible (Constitution Check section exists)
@@ -23,20 +24,21 @@ Follow-up TODOs: None
 ================================================================================
 -->
 
-# Multi-user Task Management Web Application Constitution
+# Agentic Dev Stack — Project Constitution
 
 ## Core Principles
 
 ### I. Spec-Driven Development (NON-NEGOTIABLE)
 
 All features MUST be derived directly from written specifications following the workflow:
-**Spec → Plan → Tasks → Implementation**
+**Spec → Plan → Tasks → Claude Code**
 
 - No feature work begins without a completed specification in `specs/<feature>/spec.md`
 - Implementation plans MUST be documented in `specs/<feature>/plan.md` before coding
 - Tasks MUST be broken down in `specs/<feature>/tasks.md` before execution
 - All implementation MUST be generated via agent prompts; no manual coding allowed
 - Development steps and prompts MUST be reproducible and reviewable
+- Every phase MUST be reviewable and reproducible
 
 **Rationale**: Ensures deterministic, reviewable agent outputs and maintains traceability from
 requirements to implementation.
@@ -75,7 +77,10 @@ The technology stack is fixed and non-negotiable:
 | Layer | Technology |
 |-------|------------|
 | Frontend | Next.js 16+ (App Router) |
+| Frontend Chat UI | OpenAI ChatKit |
 | Backend | Python FastAPI |
+| AI Framework | OpenAI Agents SDK |
+| MCP | Official MCP SDK |
 | ORM | SQLModel |
 | Database | Neon Serverless PostgreSQL |
 | Authentication | Better Auth (JWT-based) |
@@ -84,6 +89,7 @@ The technology stack is fixed and non-negotiable:
 - Persistent storage is required; no in-memory or mock data
 - Frontend and backend MUST share a single JWT secret via environment variables
 - Never hardcode secrets, tokens, or credentials
+- Backend and frontend are strictly separated
 
 **Rationale**: Consistency across the codebase enables predictable agent behavior
 and reduces integration complexity.
@@ -117,13 +123,55 @@ Frontend UI MUST be responsive across desktop and mobile.
 **Rationale**: Users access applications from multiple devices; responsive design
 ensures consistent experience regardless of screen size.
 
+### VII. Agentic Architecture (NON-NEGOTIABLE)
+
+All AI logic MUST be tool-driven via the OpenAI Agents SDK.
+
+- All AI agents MUST use OpenAI Agents SDK
+- Agents MUST NOT directly access the database
+- All task operations MUST be exposed via MCP tools
+- Conversation state MUST be persisted in the database
+- AI responses MUST reflect actual database state
+
+**Rationale**: Tool-driven AI ensures deterministic behavior, auditability, and
+prevents agents from bypassing security controls or data isolation.
+
+### VIII. MCP Tool Standards (NON-NEGOTIABLE)
+
+MCP (Model Context Protocol) tools MUST follow strict stateless patterns.
+
+- Use Official MCP SDK only
+- MCP tools MUST be stateless
+- MCP tools MUST be deterministic
+- No in-memory shared state between tool invocations
+- Database is the single source of truth
+
+**Rationale**: Stateless tools ensure reliability, testability, and prevent
+race conditions or inconsistent state across agent invocations.
+
+### IX. Stateless Chat Architecture (NON-NEGOTIABLE)
+
+Chat endpoints and frontend MUST maintain strict statelessness.
+
+- Chat API endpoints MUST be stateless
+- Frontend holds no business logic
+- All business logic resides in backend/MCP tools
+- Conversation history MUST be fetched from database on each request
+- AI responses MUST be based on current database state only
+
+**Rationale**: Stateless architecture enables horizontal scaling, simplifies
+debugging, and ensures consistency across multiple client sessions.
+
 ## Technology Stack
 
 | Component | Specification |
 |-----------|---------------|
 | Frontend Framework | Next.js 16+ with App Router |
 | Frontend Language | TypeScript |
+| Frontend Chat UI | OpenAI ChatKit |
 | Backend Framework | Python FastAPI |
+| AI Framework | OpenAI Agents SDK |
+| MCP | Official MCP SDK |
 | ORM | SQLModel |
 | Database | Neon Serverless PostgreSQL |
 | Authentication | Better Auth with JWT tokens |
@@ -137,6 +185,17 @@ ensures consistent experience regardless of screen size.
 3. Backend receives request → Extracts token, verifies signature using shared secret
 4. Backend identifies user → Decodes token to get user ID, email, etc.
 5. Backend filters data → Returns only tasks belonging to that user
+```
+
+### Agentic Chat Flow
+
+```
+1. User sends message → Frontend sends request to /api/chat
+2. Backend receives request → Validates JWT, extracts user context
+3. Backend invokes AI agent → Agent reasons about user intent
+4. Agent uses MCP tools → Tools execute against database (filtered by user)
+5. Agent returns response → Response reflects actual database state
+6. Frontend updates UI → Conversation and task list reflect changes
 ```
 
 ## Development Workflow
@@ -173,6 +232,20 @@ All development MUST follow this strict sequence:
 - Backend rejects all unauthorized or invalid requests
 - Database persists data correctly across sessions
 - Entire development process is reviewable via specs, plans, and prompts
+- AI chatbot correctly manages tasks via MCP tools
+- Conversation state persists across sessions
+
+## Phase III Judging Focus
+
+Evaluation criteria for Phase III agentic features:
+
+| Criterion | Description |
+|-----------|-------------|
+| Correct Agentic Workflow | AI agent properly reasons and selects appropriate tools |
+| Clean MCP Tool Usage | Tools are stateless, deterministic, and properly scoped |
+| Stateless Design | No in-memory state; database is single source of truth |
+| Security Compliance | All operations respect user isolation and JWT validation |
+| UI/UX Quality | Chat interface is responsive, intuitive, and reflects state |
 
 ## Governance
 
@@ -199,4 +272,4 @@ All development MUST follow this strict sequence:
 - Version changes MUST be tracked in Sync Impact Report
 - Dependent templates MUST be updated when principles change
 
-**Version**: 1.0.0 | **Ratified**: 2026-02-06 | **Last Amended**: 2026-02-06
+**Version**: 1.1.0 | **Ratified**: 2026-02-06 | **Last Amended**: 2026-02-10

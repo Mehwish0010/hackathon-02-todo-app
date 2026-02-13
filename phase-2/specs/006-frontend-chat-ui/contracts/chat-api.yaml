@@ -1,0 +1,179 @@
+# Chat API Contract
+# Feature: 006-frontend-chat-ui
+# This documents the backend API endpoints consumed by the frontend chat UI
+
+openapi: 3.0.3
+info:
+  title: Chat API
+  version: 1.0.0
+  description: AI-powered chat endpoints for todo task management
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /api/chat:
+    post:
+      operationId: sendChatMessage
+      summary: Send a chat message to the AI agent
+      description: |
+        Sends a natural language message to the AI agent.
+        The agent processes the message, potentially uses MCP tools to manage tasks,
+        and returns a conversational response.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            example:
+              message: "Create a task to buy groceries"
+      responses:
+        '200':
+          description: Successful response from AI agent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              example:
+                message: "I've created a new task called 'buy groceries' for you."
+                conversation_id: "550e8400-e29b-41d4-a716-446655440000"
+        '400':
+          description: Invalid request (empty or too long message)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error during AI processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/chat/history:
+    get:
+      operationId: getChatHistory
+      summary: Get conversation history
+      description: |
+        Retrieves the conversation history for the authenticated user.
+        Messages are returned in chronological order (oldest first).
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          description: Maximum number of messages to return
+      responses:
+        '200':
+          description: Conversation history retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationHistory'
+        '401':
+          description: Unauthorized - invalid or missing JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from Better Auth
+
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: User's natural language message
+          example: "Create a task to buy groceries"
+
+    ChatResponse:
+      type: object
+      required:
+        - message
+        - conversation_id
+      properties:
+        message:
+          type: string
+          description: AI agent's response
+          example: "I've created a new task called 'buy groceries' for you."
+        conversation_id:
+          type: string
+          format: uuid
+          description: Conversation identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+
+    ConversationHistory:
+      type: object
+      required:
+        - conversation_id
+        - messages
+      properties:
+        conversation_id:
+          type: string
+          description: Conversation identifier (empty string if no conversation exists)
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageItem'
+
+    MessageItem:
+      type: object
+      required:
+        - id
+        - role
+        - content
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Message identifier
+        role:
+          type: string
+          enum: [user, assistant]
+          description: Message sender role
+        content:
+          type: string
+          description: Message content
+        created_at:
+          type: string
+          format: date-time
+          description: Message timestamp (UTC)
+
+    ErrorResponse:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+          description: Error message
+          example: "Failed to process chat request"

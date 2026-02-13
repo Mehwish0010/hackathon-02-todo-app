@@ -1,0 +1,210 @@
+openapi: 3.0.3
+info:
+  title: MCP AI Task Management - Chat API
+  description: |
+    Stateless chat endpoint for AI-powered task management.
+    AI agent processes natural language requests and manages tasks via MCP tools.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000
+    description: Local development
+
+paths:
+  /api/chat:
+    post:
+      summary: Send a chat message to the AI agent
+      description: |
+        Receives a user message, invokes the AI agent with conversation context,
+        agent reasons and may call MCP tools, returns AI response.
+        Conversation history is persisted to the database.
+      operationId: chat
+      tags:
+        - Chat
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              createTask:
+                summary: Create a task
+                value:
+                  message: "Create a task to buy groceries"
+              listTasks:
+                summary: List tasks
+                value:
+                  message: "What are my tasks?"
+              completeTask:
+                summary: Complete a task
+                value:
+                  message: "Mark 'buy groceries' as done"
+      responses:
+        '200':
+          description: Successful response from AI agent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              examples:
+                taskCreated:
+                  summary: Task created response
+                  value:
+                    message: "I've created a new task called 'buy groceries' for you."
+                    conversation_id: "550e8400-e29b-41d4-a716-446655440000"
+                tasksList:
+                  summary: Tasks listed response
+                  value:
+                    message: "You have 3 tasks:\n1. Buy groceries (pending)\n2. Call mom (pending)\n3. Finish report (completed)"
+                    conversation_id: "550e8400-e29b-41d4-a716-446655440000"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "Message cannot be empty"
+        '401':
+          description: Missing or invalid authentication token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "Invalid or expired token"
+        '500':
+          description: Server error (AI provider or database failure)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "Failed to process request"
+
+  /api/chat/history:
+    get:
+      summary: Get conversation history
+      description: |
+        Retrieves the user's conversation history.
+        Returns messages ordered by timestamp (oldest first).
+      operationId: getChatHistory
+      tags:
+        - Chat
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of messages to return
+          required: false
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Conversation history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationHistory'
+        '401':
+          description: Missing or invalid authentication token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token from Better Auth
+
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: User's natural language message
+          example: "Create a task to buy groceries"
+
+    ChatResponse:
+      type: object
+      required:
+        - message
+        - conversation_id
+      properties:
+        message:
+          type: string
+          description: AI agent's response
+          example: "I've created a new task called 'buy groceries' for you."
+        conversation_id:
+          type: string
+          format: uuid
+          description: Conversation identifier for reference
+          example: "550e8400-e29b-41d4-a716-446655440000"
+
+    ConversationHistory:
+      type: object
+      required:
+        - conversation_id
+        - messages
+      properties:
+        conversation_id:
+          type: string
+          format: uuid
+          description: Conversation identifier
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageItem'
+
+    MessageItem:
+      type: object
+      required:
+        - id
+        - role
+        - content
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Message identifier
+        role:
+          type: string
+          enum: [user, assistant]
+          description: Who sent the message
+        content:
+          type: string
+          description: Message content
+        created_at:
+          type: string
+          format: date-time
+          description: Message timestamp (UTC)
+
+    ErrorResponse:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+          description: Error message
+          example: "Invalid or expired token"
+
+security:
+  - BearerAuth: []
